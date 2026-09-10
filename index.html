@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ARAD FLASH TIME</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: #2b2b35;
+            color: #f0f0f4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+            background: #f3f3f6;
+            padding: 10px;
+            border-radius: 22px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 36px;
+        }
+
+        p {
+            color: #b8b8c4;
+            font-size: 18px;
+        }
+
+        .chat-box {
+            margin-top: 30px;
+            background: #151525;
+            color: white;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        #messages {
+            min-height: 200px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            background: #24243a;
+            color: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 12px;
+            text-align: right;
+        }
+
+        .message p {
+            margin: 6px 0;
+            line-height: 1.7;
+        }
+
+        .message p:first-child {
+            margin-top: 0;
+        }
+
+        .message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message ul,
+        .message ol {
+            margin: 8px 0;
+            padding: 0 0 0 22px;
+            text-align: right;
+        }
+
+        .message li {
+            margin: 4px 0;
+            line-height: 1.7;
+        }
+
+        .message ul li::marker {
+            color: #7c3aed;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 22px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 15px 0;
+            color: #9a9aa8;
+            font-size: 13px;
+            border-top: 1px solid #3c3c46;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>⚡ ARAD FLASH TIME</h1>
+
+        <p>🤖 دستیار هوش مصنوعی شما</p>
+
+        <img
+            class="logo"
+            src="logo.png.jpeg"
+            alt="لوگوی ARAD FLASH TIME"
+        >
+
+        <div class="chat-box">
+
+            <div id="messages"></div>
+
+            <div class="input-area">
+
+                <input
+                    id="messageInput"
+                    type="text"
+                    placeholder="پیامت را بنویس..."
+                >
+
+                <button onclick="sendMessage()">
+                    ارسال
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer class="footer">
+        Created by ARAD VAHIDPOUR
+    </footer>
+
+    <script>
+
+function escapeHtml(text) {
+    var div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatMessage(text) {
+
+    var html = escapeHtml(text);
+
+    html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*(.+?)\*/g, "<em>$1</em>");
+
+    var lines = html.split("\n");
+    var out = [];
+    var list = null;
+    var listItems = [];
+
+    function flushList() {
+        if (!list) {
+            return;
+        }
+        out.push("<" + list + ">");
+        for (var i = 0; i < listItems.length; i++) {
+            out.push("<li>" + listItems[i] + "</li>");
+        }
+        out.push("</" + list + ">");
+        list = null;
+        listItems = [];
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+
+        var line = lines[i].trim();
+        if (line === "") {
+            flushList();
+            continue;
+        }
+
+        var ulMatch = line.match(/^[-*•]\s+(.*)$/);
+        var olMatch = line.match(/^\d+[.)]\s+(.*)$/);
+
+        if (ulMatch) {
+            if (list !== "ul") {
+                flushList();
+                list = "ul";
+            }
+            listItems.push(ulMatch[1]);
+            continue;
+        }
+
+        if (olMatch) {
+            if (list !== "ol") {
+                flushList();
+                list = "ol";
+            }
+            listItems.push(olMatch[1]);
+            continue;
+        }
+
+        flushList();
+        out.push("<p>" + line + "</p>");
+    }
+
+    flushList();
+
+    var joined = out.join("");
+    if (joined === "") {
+        joined = "<p>" + html.trim() + "</p>";
+    }
+
+    return joined;
+}
+
+function sendMessage() {
+
+    var input = document.getElementById("messageInput");
+    var text = input.value.trim();
+
+    if (text == "") {
+        alert("اول یک پیام بنویس 🙂");
+        return;
+    }
+
+    var messages = document.getElementById("messages");
+
+    messages.innerHTML +=
+        '<div class="message">👤 شما: ' + escapeHtml(text) + '</div>';
+
+    input.value = "";
+
+    fetch("/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: text
+        })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+
+        messages.innerHTML +=
+            '<div class="message">🤖 ARAD AI: ' +
+            formatMessage(data.reply) +
+            '</div>';
+
+    })
+    .catch(function(error) {
+
+        messages.innerHTML +=
+            '<div class="message">❌ اتصال به هوش مصنوعی برقرار نشد.</div>';
+
+        console.log(error);
+
+    });
+}
+       
+    </script>
+
+</body>
+
+</html>
