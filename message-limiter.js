@@ -1,7 +1,7 @@
 export class MessageLimiter {
 
     constructor(options = {}) {
-        this.maxPerWindow = options.maxPerWindow ?? 10;
+        this.maxPerWindow = options.maxPerWindow ?? 20;
         this.windowMs = options.windowMs ?? 6 * 60 * 60 * 1000;
         this.cooldownMs = options.cooldownMs ?? 10 * 1000;
         this.now = options.now ?? (() => Date.now());
@@ -56,7 +56,9 @@ export class MessageLimiter {
 
         if (!result.allowed) {
             if (result.reason === "cooldown") {
-                result.remaining = this.maxPerWindow - this.users.get(userId).count;
+                result.remaining = Math.max(0, this.maxPerWindow - this.users.get(userId).count);
+            } else {
+                result.remaining = 0;
             }
             return result;
         }
@@ -69,6 +71,15 @@ export class MessageLimiter {
             allowed: true,
             remaining: this.maxPerWindow - entry.count,
             windowStart: entry.windowStart
+        };
+    }
+
+    remaining(userId) {
+        const entry = this._getEntry(userId);
+
+        return {
+            max: this.maxPerWindow,
+            remaining: Math.max(0, this.maxPerWindow - entry.count)
         };
     }
 

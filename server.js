@@ -15,7 +15,7 @@ const client = new OpenAI({
 });
 
 const limiter = new MessageLimiter({
-    maxPerWindow: Number(process.env.MESSAGE_LIMIT_PER_WINDOW) || 10,
+    maxPerWindow: Number(process.env.MESSAGE_LIMIT_PER_WINDOW) || 20,
     windowMs: (Number(process.env.MESSAGE_LIMIT_WINDOW_HOURS) || 6) * 60 * 60 * 1000,
     cooldownMs: (Number(process.env.MESSAGE_LIMIT_COOLDOWN_SECONDS) || 10) * 1000
 });
@@ -64,6 +64,11 @@ setInterval(function () {
     limiter.cleanup();
 }, 60 * 60 * 1000).unref();
 
+app.get("/quota", function (req, res) {
+    const who = getUserId(req, res);
+    res.json(limiter.remaining(who.id));
+});
+
 app.post("/chat", async function (req, res) {
     try {
         const who = getUserId(req, res);
@@ -80,12 +85,16 @@ app.post("/chat", async function (req, res) {
         if (!limit.allowed) {
             if (limit.reason === "cooldown") {
                 return res.status(429).json({
-                    reply: "لطفاً کمی صبر کنید، سپس دوباره پیام بفرستید."
+                    reply: "لطفاً کمی صبر کنید، سپس دوباره پیام بفرستید.",
+                    remaining: limit.remaining,
+                    max: limiter.maxPerWindow
                 });
             }
 
             return res.status(429).json({
-                reply: "سهمیه پیام شما در این بازه تمام شده است. لطفاً بعداً دوباره تلاش کنید."
+                reply: "سهمیه پیام شما تمام شده است. پس از 6 ساعت، سهمیه دوباره فعال می‌شود.",
+                remaining: 0,
+                max: limiter.maxPerWindow
             });
         }
 
@@ -101,7 +110,9 @@ app.post("/chat", async function (req, res) {
         });
 
         res.json({
-            reply: response.choices[0].message.content
+            reply: response.choices[0].message.content,
+            remaining: limit.remaining,
+            max: limiter.maxPerWindow
         });
 
     } catch (error) {

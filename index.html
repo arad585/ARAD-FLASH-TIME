@@ -57,6 +57,22 @@
             margin-bottom: 15px;
         }
 
+        .quota-info {
+            display: inline-block;
+            margin: 0 0 14px;
+            padding: 7px 18px;
+            background: #24243a;
+            border: 1px solid #7c3aed;
+            color: #c4b5fd;
+            border-radius: 999px;
+            font-size: 14px;
+        }
+
+        .quota-info.empty {
+            border-color: #e11d48;
+            color: #fda4af;
+        }
+
         .message {
             background: #24243a;
             color: white;
@@ -144,6 +160,8 @@
         >
 
         <div class="chat-box">
+
+            <div id="quotaInfo" class="quota-info">پیام‌های باقی‌مانده: –</div>
 
             <div id="messages"></div>
 
@@ -245,6 +263,26 @@ function formatMessage(text) {
     return joined;
 }
 
+function updateQuotaInfo(info) {
+
+    var badge = document.getElementById("quotaInfo");
+
+    if (info && typeof info.remaining === "number" && typeof info.max === "number") {
+        badge.textContent = "پیام‌های باقی‌مانده: " + info.remaining + " از " + info.max;
+        badge.classList.toggle("empty", info.remaining === 0);
+        return true;
+    }
+
+    return false;
+}
+
+function loadQuota() {
+    fetch("/quota")
+        .then(function (response) { return response.json(); })
+        .then(updateQuotaInfo)
+        .catch(function () { });
+}
+
 function sendMessage() {
 
     var input = document.getElementById("messageInput");
@@ -276,6 +314,8 @@ function sendMessage() {
     })
     .then(function(data) {
 
+        updateQuotaInfo(data);
+
         messages.innerHTML +=
             '<div class="message">🤖 ARAD AI: ' +
             formatMessage(data.reply) +
@@ -291,6 +331,8 @@ function sendMessage() {
 
     });
 }
+
+loadQuota();
        
     </script>
 
