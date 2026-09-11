@@ -1,6 +1,6 @@
 const users = new Map();
 
-const MESSAGE_LIMIT = 10;
+const MESSAGE_LIMIT = 20;
 const COOLDOWN = 10 * 1000;       // 10 ثانیه
 const RESET_TIME = 6 * 60 * 60 * 1000; // 6 ساعت
 
