@@ -1,0 +1,10 @@
+services:
+  arad-flash-time:
+    build: .
+    container_name: arad-flash-time
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+    restart: unless-stopped
