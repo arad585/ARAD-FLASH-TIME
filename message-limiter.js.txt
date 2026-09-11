@@ -1,0 +1,44 @@
+const users = new Map();
+
+const MESSAGE_LIMIT = 10;
+const COOLDOWN = 10 * 1000;       // 10 ثانیه
+const RESET_TIME = 6 * 60 * 60 * 1000; // 6 ساعت
+
+function checkLimit(userId) {
+  const now = Date.now();
+
+  let user = users.get(userId);
+
+  if (!user || now - user.startTime >= RESET_TIME) {
+    user = {
+      count: 0,
+      startTime: now,
+      lastMessage: 0
+    };
+    users.set(userId, user);
+  }
+
+  if (now - user.lastMessage < COOLDOWN) {
+    return {
+      allowed: false,
+      reason: "cooldown"
+    };
+  }
+
+  if (user.count >= MESSAGE_LIMIT) {
+    return {
+      allowed: false,
+      reason: "limit"
+    };
+  }
+
+  user.count++;
+  user.lastMessage = now;
+
+  return {
+    allowed: true,
+    remaining: MESSAGE_LIMIT - user.count
+  };
+}
+
+module.exports = { checkLimit };

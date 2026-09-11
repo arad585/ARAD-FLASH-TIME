@@ -16,7 +16,7 @@ export class MessageLimiter {
             entry = {
                 windowStart: now,
                 count: 0,
-                lastMessageAt: 0
+                lastMessageAt: null
             };
             this.users.set(userId, entry);
         }
@@ -33,7 +33,7 @@ export class MessageLimiter {
         const now = this.now();
         const entry = this._getEntry(userId);
 
-        if (entry.lastMessageAt && now - entry.lastMessageAt < this.cooldownMs) {
+        if (entry.lastMessageAt !== null && now - entry.lastMessageAt < this.cooldownMs) {
             return {
                 allowed: false,
                 reason: "cooldown",
