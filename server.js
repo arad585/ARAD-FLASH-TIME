@@ -103,7 +103,7 @@ app.post("/chat", async function (req, res) {
             messages: [
                 {
                     role: "system",
-                    content: "همیشه به زبان فارسی پاسخ بده. پاسخ‌هایت باید دوستانه، واضح و مفید باشد."
+                    content: "You are a multilingual AI assistant. Automatically detect the language of the user's message and always reply in that same language (if a message mixes multiple languages, reply in the dominant language unless the user explicitly asks for a specific language; honor explicit requests to switch languages). Support all the languages you can speak — Persian (Farsi), English, Arabic, Turkish, Azerbaijani, Russian, French, German, Spanish, Italian, Portuguese, Chinese, Japanese, Korean and any other — and never force English. Be friendly, clear, and helpful."
                 },
                 { role: "user", content: req.body.message }
             ]
